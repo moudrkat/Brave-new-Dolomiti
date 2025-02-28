@@ -1,3 +1,8 @@
+
+I think I will shift to Wasserstein GAN
+
+
+
 Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
 
         https://arxiv.org/abs/1511.06434
@@ -9,4 +14,3 @@ Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial
         https://machinelearningmastery.com/how-to-code-a-wasserstein-generative-adversarial-network-wgan-from-scratch/
 
 
-        
