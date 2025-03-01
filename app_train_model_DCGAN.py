@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from src.utils import extract_last_word_from_filename
 
 # Streamlit UI setup
-st.title("Dolomiti GAN")
-st.write("Generate Dolomite landscapes using a simple GAN")
+st.title("Brave new Dolomiti")
+st.write("Generate Dolomiti-like landscapes using a GAN model")
 
 # Set a local file path 
 local_data_file = "./data/data_dolomiti.npz"  # Change this to your local file path

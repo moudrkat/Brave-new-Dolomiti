@@ -42,21 +42,37 @@ def save_generated_images(strategy, sketch_type, images, epoch,  path=f"./genera
     plt.savefig(f"{path}/generated_{strategy}_epoch_{epoch}.png")
     plt.close()
 
-def show_images_in_streamlit(strategy, real_images, fake_images, epoch,image_placeholder):
+def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_placeholder):
+    # Ensure the images are 4D arrays 
+    batch_size = real_images.shape[0]
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    # Randomly select 10 unique indices from the batch
+    random_indices = np.random.choice(batch_size, 5, replace=False)
+
+    # Select 5 random real and fake images using the selected indices
+    random_real_images = real_images[random_indices]
+    random_fake_images = fake_images[random_indices]
     
-    # Display the real image (first image from the batch)
-    axes[0].imshow(real_images[0]) 
-    axes[0].set_title("Real Dolomiti")
-    axes[0].axis('off')
+    # Create a figure with 2 columns and 10 rows
+    fig, axes = plt.subplots(5, 2, figsize=(5, 10))
 
-    # Display the fake image (first generated image)
-    axes[1].imshow(fake_images[0])  
-    axes[1].set_title("Brave new Dolomiti")
-    axes[1].axis('off')
+    # Loop through the 10 rows and display real and fake images in the respective columns
+    for i in range(5):
+        # Display the real image in the first column
+        axes[i, 0].imshow(random_real_images[i])  
+        axes[i, 0].set_title(f"Real Dolomiti {i+1}")
+        axes[i, 0].axis('off')
 
-    image_placeholder.pyplot(fig) 
+        # Display the fake image in the second column
+        axes[i, 1].imshow(random_fake_images[i])  
+        axes[i, 1].set_title(f"Brave new Dolomiti {i+1}")
+        axes[i, 1].axis('off')
+
+    # Adjust layout for better spacing between images
+    #plt.tight_layout()
+    
+    # Show the images in the Streamlit placeholder
+    image_placeholder.pyplot(fig)
 
 def show_loss_acc_in_streamlit(strategy, g_losses, d_losses, d_accuracies, epoch,epochs,image_placeholder_loss,path="./generated_images"):
 

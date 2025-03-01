@@ -126,7 +126,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
     d_losses = []
     d_accuracies = []
 
-    half_batch = batch_size // 2  # Half batch size for real/fake images
+    #half_batch = batch_size // 2  # Half batch size for real/fake images
     for epoch in range(epochs):
 
         print(f"processing epoch {epoch}")
@@ -137,12 +137,11 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
 
         # 1. Train the discriminator with real and fake images
         discriminator.trainable = True  # Unfreeze the discriminator to train it
-        idx = np.random.randint(0, images.shape[0], half_batch)
+        idx = np.random.randint(0, images.shape[0], batch_size)
         real_images = images[idx]  # Select real images from the dataset
-        real_labels = np.ones((half_batch, 1))  # Label for real images: 1
-
-        fake_images = generated_images[:half_batch]  # Use first half of generated images
-        fake_labels = np.zeros((half_batch, 1))  # Label for fake images: 0
+        real_labels = np.ones((batch_size, 1))  # Label for real images: 1
+        fake_images = generated_images  
+        fake_labels = np.zeros((batch_size, 1))  # Label for fake images: 0
 
         d_loss_real, d_acc_real = discriminator.train_on_batch(real_images, real_labels)
         d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_images, fake_labels)
@@ -160,7 +159,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
         d_accuracies.append(d_acc)  
 
         # Every few epochs, print the progress and save the model
-        if epoch % 500 == 0:  # Save model and show images every 10 epochs
+        if epoch % 10 == 0:  # Save model and show images every 10 epochs
             generator.save(f"./trained_generators_{strategy}_{sketch_type}/trained_generator_{strategy}_epoch_{epoch}.h5")  # Save model
 
             save_generated_images(strategy, sketch_type,generated_images, epoch, path=f"./generated_images_{strategy}_{sketch_type}")
