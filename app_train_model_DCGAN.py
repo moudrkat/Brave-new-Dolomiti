@@ -42,8 +42,8 @@ try:
         gan = compile_gan(generator, discriminator)
 
         # GAN Training
-        n_epochs = 1000
-        batch_size = 64  
+        n_epochs = 100000
+        batch_size = 128  
 
         # Start training process
         train_gan(strategy, sketch_type, generator, discriminator, gan, images, image_placeholder, image_placeholder_loss, epochs=n_epochs, batch_size=batch_size, latent_dim=latent_dim)
@@ -53,3 +53,4 @@ try:
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
+print('DONE')

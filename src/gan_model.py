@@ -108,7 +108,7 @@ def compile_gan(generator, discriminator):
     
     # # Optimizer for the generator
     lr_gen = 0.0004
-    optimizer_gen = tf.keras.optimizers.RMSprop(lr=lr_gen, decay=3e-8, clipvalue=1.0)
+    optimizer_gen = tf.keras.optimizers.RMSprop(lr=lr_gen, clipvalue=1.0)
     #optimizer_gen = tf.keras.optimizers.Adam(lr=lr_gen)
 
     # GAN is a combined model of generator and discriminator
@@ -129,6 +129,8 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
     half_batch = batch_size // 2  # Half batch size for real/fake images
     for epoch in range(epochs):
 
+        print(f"processing epoch {epoch}")
+        
         noise = np.random.normal(0, 1, (batch_size, latent_dim))  # Latent noise for generator
 
         generated_images = generator.predict(noise)  # Generate fake images
@@ -158,7 +160,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
         d_accuracies.append(d_acc)  
 
         # Every few epochs, print the progress and save the model
-        if epoch % 10 == 0:  # Save model and show images every 10 epochs
+        if epoch % 500 == 0:  # Save model and show images every 10 epochs
             generator.save(f"./trained_generators_{strategy}_{sketch_type}/trained_generator_{strategy}_epoch_{epoch}.h5")  # Save model
 
             save_generated_images(strategy, sketch_type,generated_images, epoch, path=f"./generated_images_{strategy}_{sketch_type}")

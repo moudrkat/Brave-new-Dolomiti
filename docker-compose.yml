@@ -1,0 +1,21 @@
+services:
+  tensorflow:
+    # image: tensorflow/tensorflow:latest-gpu
+    # image: tensorflow/tensorflow:2.10.0-gpu
+    # image: tensorflow/tensorflow:2.18.0-gpu
+    image: tensorflow/tensorflow:2.15.0-gpu
+    # image: tensorflow/tensorflow:2.18.0-gpu
+    # image: tensorflow/tensorflow:2.18.0-gpu
+    
+    runtime: nvidia
+    user: "${UID}:${GID}"
+    working_dir: '/app'
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # Use all GPUs, or specify GPUs like '0,1'
+    volumes:
+      - .:/app  # Mount local directory into the container
+    ports:
+      - "8501:8501"
+
+    command: ["tail", "-f", "/dev/null"] # keep running
+    # command: ["python", "src/run.py"]
