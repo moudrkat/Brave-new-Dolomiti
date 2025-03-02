@@ -4,7 +4,7 @@ Hopefully, one of these methods will converge successfully.
 
 Run with argument: streamlit run app_train_model.py -- --model DCGAN
 
-Currently only DCGAN model works ... soon WGAN will be implemented
+Currently only DCGAN model works (but diverges like crazy) ... soon WGAN will be implemented
 
 
 Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
