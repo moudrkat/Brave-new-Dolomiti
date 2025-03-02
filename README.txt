@@ -1,5 +1,5 @@
 
-Run with argument: streamlit run app_train_model.py -- --mod DCGAN
+Run with argument: streamlit run app_train_model.py -- --model DCGAN
 
 Currently only DCGAN model works ... soon WGAN will be implemented
 
