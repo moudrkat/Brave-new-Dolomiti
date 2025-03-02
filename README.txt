@@ -1,5 +1,7 @@
 
-I think I will shift to Wasserstein GAN
+Run with argument: streamlit run app_train_model.py -- --mod DCGAN
+
+Currently only DCGAN model works ... soon WGAN will be implemented
 
 
 

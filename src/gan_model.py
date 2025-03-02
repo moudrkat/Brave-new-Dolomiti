@@ -14,39 +14,39 @@ def build_generator(latent_dim=100, drop=0.4):
     model.add(tf.keras.layers.Activation('relu'))
     assert model.output_shape == (None, 4, 4, 256)
     
-    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 4, padding = 'same'))
+    model.add(tf.keras.layers.UpSampling2D())
+    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 8, 8, 256)
     
-    model.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 4, padding = 'same'))
+    model.add(tf.keras.layers.UpSampling2D())
+    model.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 16, 16, 128)
     
+    model.add(tf.keras.layers.UpSampling2D())
     model.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 32, 32, 64)
     
+    model.add(tf.keras.layers.UpSampling2D())
     model.add(tf.keras.layers.Conv2D(filters = 32, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 64, 64, 32)
     
+    model.add(tf.keras.layers.UpSampling2D())
     model.add(tf.keras.layers.Conv2D(filters = 16, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 128, 128, 16)
     
+    model.add(tf.keras.layers.UpSampling2D())
     model.add(tf.keras.layers.Conv2D(filters = 8, kernel_size = 3, padding = 'same'))
     model.add(tf.keras.layers.Activation('relu'))
-    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 256, 256, 8)
     
     model.add(tf.keras.layers.Conv2D(filters = 3, kernel_size = 3, padding = 'same'))
@@ -56,38 +56,49 @@ def build_generator(latent_dim=100, drop=0.4):
     return model
 
 
-def build_discriminator(img_width=256, img_height=256, p=0.4):
+def build_discriminator(img_width=256, img_height=256, p=0.25):
     model = tf.keras.Sequential()
 
     #add Gaussian noise to prevent Discriminator overfitting
-    model.add(tf.keras.layers.GaussianNoise(0.2, input_shape = [img_width, img_height, 3]))
+    # model.add(tf.keras.layers.GaussianNoise(0.2, input_shape = [img_width, img_height, 3]))
     
-    # First convolutional layer
-    model.add(tf.keras.layers.Conv2D(64, kernel_size=5, strides=2, padding='same', input_shape=(img_width, img_height, 3)))  # RGB input
+
+    model.add(tf.keras.layers.Conv2D(32, kernel_size=3, strides=2, padding='same', input_shape=(img_width, img_height, 3)))  # RGB input
+    model.add(tf.keras.layers.LeakyReLU(0.2))
+    model.add(tf.keras.layers.Dropout(p))
+
+   
+    model.add(tf.keras.layers.Conv2D(64, kernel_size=3, strides=2, padding='same'))
+    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
-    # Second convolutional layer
-    model.add(tf.keras.layers.Conv2D(128, kernel_size=5, strides=2, padding='same'))
-    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(128, kernel_size=3, strides=2, padding='same'))
+    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
-    # Third convolutional layer
-    model.add(tf.keras.layers.Conv2D(256, kernel_size=5, strides=2, padding='same'))
-    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(256, kernel_size=3, strides=1, padding='same'))
+    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
-    # Fourth convolutional layer
-    model.add(tf.keras.layers.Conv2D(512, kernel_size=5, strides=2, padding='same'))
+
+    model.add(tf.keras.layers.Conv2D(512, kernel_size=3, strides=1, padding='same'))
+    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
 
     # # Fifth convolutional layer (to further downscale)
-    # model.add(tf.keras.layers.Conv2D(1024, kernel_size=4, strides=2, padding='same'))
-    # model.add(tf.keras.layers.LeakyReLU(0.2))
-    # model.add(tf.keras.layers.Dropout(p))
+    model.add(tf.keras.layers.Conv2D(1024, kernel_size=3, strides=1, padding='same'))
+    model.add(tf.keras.layers.LeakyReLU(0.2))
+    model.add(tf.keras.layers.Dropout(p))
 
     # Flatten layer to feed into a dense output layer
     model.add(tf.keras.layers.Flatten())
@@ -95,26 +106,18 @@ def build_discriminator(img_width=256, img_height=256, p=0.4):
     # Output layer: Single neuron with sigmoid activation
     model.add(tf.keras.layers.Dense(1, activation='sigmoid'))  # Use 0 to 1 output range
     
-    # Compile model
-    opt = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5)  # Use Adam optimizer
-    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
-
     return model
 
-def compile_gan(generator, discriminator):
+def compile_gan(generator, discriminator, optimizer_gan):
     
-    # # Freeze the discriminator's weights during the GAN training
+    # # # Freeze the discriminator's weights during the GAN training
     discriminator.trainable = False
-    
-    # # Optimizer for the generator
-    lr_gen = 0.0004
-    optimizer_gen = tf.keras.optimizers.RMSprop(lr=lr_gen, clipvalue=1.0)
 
     # GAN is a combined model of generator and discriminator
     gan = tf.keras.Sequential([generator, discriminator])
 
     # Compile the GAN model with the optimizer for the generator
-    gan.compile(loss='binary_crossentropy', optimizer=optimizer_gen)
+    gan.compile(loss='binary_crossentropy', optimizer=optimizer_gan)
 
     return gan
 
@@ -129,7 +132,6 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
     d_losses = []
     d_accuracies = []
 
-    #half_batch = batch_size // 2  # Half batch size for real/fake images
     for epoch in range(epochs):
 
         #print(f"processing epoch {epoch}")
@@ -166,6 +168,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
         
         # 2. Train the generator (through the GAN model) every epoch
         discriminator.trainable = False  # Freeze the discriminator (now only the generator will be trained)
+        noise = np.random.normal(0, 1, (batch_size, latent_dim))
         valid_labels = np.ones((batch_size, 1))  # Fake images are labeled as real for the generator
         g_loss = gan.train_on_batch(noise, valid_labels)
 
