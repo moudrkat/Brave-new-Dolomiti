@@ -20,12 +20,9 @@ args = parse_args()
 # Use the argument
 strategy = args.model
 
-# Display the chosen strategy in Streamlit
-st.write(f"Selected strategy: {strategy}")
-
 # Streamlit UI setup
 st.title("Brave new Dolomiti")
-st.write("Generate Dolomiti-like landscapes using a GAN model")
+st.write(f"Generate Dolomiti-like landscapes using a {strategy} model")
 
 # Set a local file path 
 local_data_file = "./data/data_dolomiti.npz"  # Change this to your local file path
