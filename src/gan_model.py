@@ -118,6 +118,10 @@ def compile_gan(generator, discriminator):
 
     return gan
 
+# Define the label smoothing function
+def smooth_labels(labels, smoothing_factor=0.1):
+    return labels * (1 - smoothing_factor) + smoothing_factor * 0.5
+
 
 def train_gan(strategy, sketch_type, generator, discriminator, gan, images, image_placeholder,image_placeholder_loss,freq_show = 10, freq_save = 100,epochs=100, batch_size=64, latent_dim=100):
     # Initialize lists to store losses
@@ -129,21 +133,34 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
     for epoch in range(epochs):
 
         #print(f"processing epoch {epoch}")
+
+        # Latent noise for generator
+        noise = np.random.normal(0, 1, (batch_size, latent_dim))
+
+        # Generate fake images using the generator
+        generated_images = generator.predict(noise)
         
-        noise = np.random.normal(0, 1, (batch_size, latent_dim))  # Latent noise for generator
-
-        generated_images = generator.predict(noise)  # Generate fake images
-
         # 1. Train the discriminator with real and fake images
         discriminator.trainable = True  # Unfreeze the discriminator to train it
-        idx = np.random.randint(0, images.shape[0], batch_size)
-        real_images = images[idx]  # Select real images from the dataset
-        real_labels = np.ones((batch_size, 1))  # Label for real images: 1
-        fake_images = generated_images  
-        fake_labels = np.zeros((batch_size, 1))  # Label for fake images: 0
 
-        d_loss_real, d_acc_real = discriminator.train_on_batch(real_images, real_labels)
-        d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_images, fake_labels)
+        # Select real images from the dataset
+        idx = np.random.randint(0, images.shape[0], batch_size)
+        real_images = images[idx]
+        fake_images = generated_images
+
+        # Apply label smoothing to real labels (1 -> 0.9) and fake labels (0 -> 0.1)
+        real_labels = np.ones((batch_size, 1))  # Initial label for real images: 1
+        fake_labels = np.zeros((batch_size, 1))  # Initial label for fake images: 0
+
+        # Apply smoothing
+        real_labels_smooth = smooth_labels(real_labels, smoothing_factor=0.1)  # Smooth real labels to 0.9
+        fake_labels_smooth = smooth_labels(fake_labels, smoothing_factor=0.1)  # Smooth fake labels to 0.1
+
+        # Train the discriminator on real images (with smoothed labels) and fake images (with smoothed labels)
+        d_loss_real, d_acc_real = discriminator.train_on_batch(real_images, real_labels_smooth)
+        d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_images, fake_labels_smooth)
+
+        # Average the losses and accuracies
         d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)  # Average of both losses
         d_acc = 0.5 * np.add(d_acc_real, d_acc_fake)  # Average of both accuracies
         
