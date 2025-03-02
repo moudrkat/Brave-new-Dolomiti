@@ -4,18 +4,6 @@ import streamlit as st
 import matplotlib.cm as cm
 import os
 
-# # Function to extract the last word from the file name
-# def extract_last_word_from_filename(file_path):
-#     # Extract the base name (without extension)
-#     file_name = os.path.splitext(file_path.name)[0]
-    
-#     # Split the file name by underscore and get the last part
-#     last_word = file_name.split("_")[-1]
-    
-#     return last_word
-
-
-# Modify your function or logic to handle file paths directly
 def extract_last_word_from_filename(file_path):
     # Get the filename from the path
     filename = os.path.basename(file_path)
@@ -65,7 +53,7 @@ def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_pl
 
         # Display the fake image in the second column
         axes[i, 1].imshow(random_fake_images[i])  
-        axes[i, 1].set_title(f"Brave new Dolomiti {i+1}")
+        axes[i, 1].set_title(f"Brave new {strategy} Dolomiti {i+1}")
         axes[i, 1].axis('off')
 
     # Adjust layout for better spacing between images
@@ -83,7 +71,7 @@ def show_loss_acc_in_streamlit(strategy, g_losses, d_losses, d_accuracies, epoch
     ax1.set_xlabel("Epochs")
     ax1.set_ylabel("Loss")
     ax1.legend(loc='upper left')
-    ax1.set_ylim(0, 2)
+    ax1.set_ylim(0, 8)
 
     # ax2 = ax1.twinx()  # Create a second y-axis for accuracy
     # ax2.plot(d_accuracies, label='Discriminator Accuracy', color='green', linestyle='dashed')

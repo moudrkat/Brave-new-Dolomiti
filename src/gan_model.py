@@ -7,8 +7,8 @@ import streamlit as st
 def build_generator(latent_dim=100, drop=0.4):
     model = tf.keras.Sequential()
 
-    model.add(tf.keras.layers.Reshape(target_shape = [1, 1, 4096], input_shape = [4096]))
-    assert model.output_shape == (None, 1, 1, 4096)
+    model.add(tf.keras.layers.Reshape(target_shape = [1, 1, latent_dim], input_shape = [latent_dim]))
+    assert model.output_shape == (None, 1, 1, latent_dim)
         
     model.add(tf.keras.layers.Conv2DTranspose(filters = 256, kernel_size = 4))
     model.add(tf.keras.layers.Activation('relu'))
@@ -109,7 +109,6 @@ def compile_gan(generator, discriminator):
     # # Optimizer for the generator
     lr_gen = 0.0004
     optimizer_gen = tf.keras.optimizers.RMSprop(lr=lr_gen, clipvalue=1.0)
-    #optimizer_gen = tf.keras.optimizers.Adam(lr=lr_gen)
 
     # GAN is a combined model of generator and discriminator
     gan = tf.keras.Sequential([generator, discriminator])
@@ -120,7 +119,7 @@ def compile_gan(generator, discriminator):
     return gan
 
 
-def train_gan(strategy, sketch_type, generator, discriminator, gan, images, image_placeholder,image_placeholder_loss, epochs=100, batch_size=64, latent_dim=100):
+def train_gan(strategy, sketch_type, generator, discriminator, gan, images, image_placeholder,image_placeholder_loss,freq_show = 10, freq_save = 100,epochs=100, batch_size=64, latent_dim=100):
     # Initialize lists to store losses
     g_losses = []
     d_losses = []
@@ -129,7 +128,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
     #half_batch = batch_size // 2  # Half batch size for real/fake images
     for epoch in range(epochs):
 
-        print(f"processing epoch {epoch}")
+        #print(f"processing epoch {epoch}")
         
         noise = np.random.normal(0, 1, (batch_size, latent_dim))  # Latent noise for generator
 
@@ -159,11 +158,12 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
         d_accuracies.append(d_acc)  
 
         # Every few epochs, print the progress and save the model
-        if epoch % 10 == 0:  # Save model and show images every 10 epochs
+        if epoch % freq_save == 0:  # Save model images freq_save epochs
             generator.save(f"./trained_generators_{strategy}_{sketch_type}/trained_generator_{strategy}_epoch_{epoch}.h5")  # Save model
 
             save_generated_images(strategy, sketch_type,generated_images, epoch, path=f"./generated_images_{strategy}_{sketch_type}")
 
+        if epoch % freq_show == 0:  # Show images every freq_show epochs
             denormalized_fake_images = denormalize_images(fake_images)  # Denormalize for display
             denormalized_real_images = denormalize_images(real_images)  # Denormalize for display
             show_images_in_streamlit(strategy, denormalized_real_images, denormalized_fake_images, epoch, image_placeholder)  # Show images in Streamlit

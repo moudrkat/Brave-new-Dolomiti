@@ -36,7 +36,7 @@ try:
         image_placeholder_loss = st.empty()
 
         # GAN setup
-        latent_dim = 4096
+        latent_dim = 100
         generator = build_generator(latent_dim)
         discriminator = build_discriminator()
         gan = compile_gan(generator, discriminator)
@@ -45,8 +45,24 @@ try:
         n_epochs = 100000
         batch_size = 128  
 
+        # how often are results saved and displayed
+        n_freq_show = 1
+        n_freq_save = 100
+
         # Start training process
-        train_gan(strategy, sketch_type, generator, discriminator, gan, images, image_placeholder, image_placeholder_loss, epochs=n_epochs, batch_size=batch_size, latent_dim=latent_dim)
+        train_gan(strategy,
+                sketch_type, 
+                generator, 
+                discriminator, 
+                gan, 
+                images, 
+                image_placeholder, 
+                image_placeholder_loss,
+                freq_show = n_freq_show, 
+                freq_save = n_freq_save,
+                epochs=n_epochs, 
+                batch_size=batch_size, 
+                latent_dim=latent_dim)
 
         st.write("Training complete!")
 
