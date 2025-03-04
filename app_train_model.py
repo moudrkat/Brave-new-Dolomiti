@@ -50,11 +50,12 @@ try:
         image_placeholder_loss = st.empty()
 
         # GAN setup
-        latent_dim = 100
-        #learning_rate = 0.0004
-        #optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate, clipvalue=1.0)
-        optimizer_disc = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5)  # Use Adam optimizer
-        optimizer_gan = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5)  # Use Adam optimizer
+        latent_dim = 4096
+        learning_rate = 0.0008
+        optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate, weight_decay = 3e-8, clipvalue=1.0)
+        optimizer_disc = tf.keras.optimizers.RMSprop(lr=0.0004,weight_decay = 6e-8, clipvalue=1.0)
+        #optimizer_disc = tf.keras.optimizers.Adam(lr=2e-4, beta_1=0.5)  # Use Adam optimizer
+        #optimizer_gan = tf.keras.optimizers.Adam(lr=2e-4, beta_1=0.5)  # Use Adam optimizer
 
         print('bulding generator')
         generator = build_generator(latent_dim)
@@ -67,8 +68,8 @@ try:
         gan = compile_gan(generator, discriminator,optimizer_gan)
 
         # GAN Training
-        n_epochs = 100000
-        batch_size = 128  
+        n_epochs = 50000
+        batch_size = 64  
 
         # how often are results saved and displayed
         n_freq_show = 100

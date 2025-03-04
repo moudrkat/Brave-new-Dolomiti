@@ -4,101 +4,232 @@ from src.utils import save_generated_images, show_images_in_streamlit, show_loss
 from src.data_preprocessing import denormalize_images
 import streamlit as st
 
+# def build_generator(latent_dim=100, drop=0.4):
+#     model = tf.keras.Sequential()
+
+#     model.add(tf.keras.layers.Reshape(target_shape = [1, 1, latent_dim], input_shape = [latent_dim]))
+#     assert model.output_shape == (None, 1, 1, latent_dim)
+        
+#     model.add(tf.keras.layers.Conv2DTranspose(filters = 256, kernel_size = 4))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 4, 4, 256)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 8, 8, 256)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 16, 16, 128)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 32, 32, 64)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 32, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 64, 64, 32)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 16, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 128, 128, 16)
+    
+#     model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 8, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.Activation('relu'))
+#     assert model.output_shape == (None, 256, 256, 8)
+    
+#     model.add(tf.keras.layers.Conv2D(filters = 3, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.Activation('tanh'))
+#     assert model.output_shape == (None, 256, 256, 3)
+    
+#     return model
+
+
+# def build_generator(latent_dim=100, drop=0.4):
+
+#     model = tf.keras.Sequential()
+#     model.add(tf.keras.layers.Dense(1024*8*8, input_shape=(100,)))
+#     #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     model.add(tf.keras.layers.Reshape((8,8,1024)))
+#     assert model.output_shape == (None, 8, 8, 1024)
+#     #8x8x1024
+
+#     model.add(tf.keras.layers.Conv2DTranspose(512,(4,4),strides=(2,2),padding='same'))
+#     #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     assert model.output_shape == (None, 16, 16, 512)
+#     #16x16x512
+
+#     #model.add(tf.keras.layers.Conv2DTranspose(256,(5,5),strides=(2,2),padding='same'))
+    
+#     model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     model.add(tf.keras.layers.UpSampling2D())
+#     assert model.output_shape == (None, 32, 32, 256)
+#     #32x32x256
+
+#     #model.add(tf.keras.layers.Conv2DTranspose(128,(5,5),strides=(2,2),padding='same'))
+    
+#     model.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     model.add(tf.keras.layers.UpSampling2D())
+#     assert model.output_shape == (None, 64, 64, 128)
+#     #64x64x128
+
+#     #model.add(tf.keras.layers.Conv2DTranspose(64,(5,5),strides=(2,2),padding='same'))
+    
+#     model.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     model.add(tf.keras.layers.UpSampling2D())
+#     assert model.output_shape == (None, 128, 128, 64)
+#     #128x128x64
+
+#     #model.add(tf.keras.layers.Conv2DTranspose(64,(5,5),strides=(2,2),padding='same'))
+   
+#     model.add(tf.keras.layers.Conv2D(filters = 8, kernel_size = 3, padding = 'same'))
+#     #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
+#     model.add(tf.keras.layers.LeakyReLU(alpha=0.2))
+#     model.add(tf.keras.layers.UpSampling2D())
+#     assert model.output_shape == (None, 256, 256, 8)
+#     #256x256x8
+
+#     #model.add(tf.keras.layers.Conv2DTranspose(3, (5,5),strides=(2,2),padding='same'))
+#     #model.add(tf.keras.layers.UpSampling2D())
+#     model.add(tf.keras.layers.Conv2D(filters = 3, kernel_size = 3, padding = 'same'))
+#     model.add(tf.keras.layers.Activation('tanh'))
+#     assert model.output_shape == (None, 256, 256, 3)
+#     #256x256x3
+
+#     return model
+
+
+
+# Building the generator
 def build_generator(latent_dim=100, drop=0.4):
     model = tf.keras.Sequential()
 
-    model.add(tf.keras.layers.Reshape(target_shape = [1, 1, latent_dim], input_shape = [latent_dim]))
-    assert model.output_shape == (None, 1, 1, latent_dim)
-        
-    model.add(tf.keras.layers.Conv2DTranspose(filters = 256, kernel_size = 4))
+    model.add(tf.keras.layers.Reshape(target_shape=[1, 1, 4096], input_shape=[4096]))
+    assert model.output_shape == (None, 1, 1, 4096)
+
+    model.add(tf.keras.layers.Conv2DTranspose(filters=256, kernel_size=4))
     model.add(tf.keras.layers.Activation('relu'))
     assert model.output_shape == (None, 4, 4, 256)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 256, kernel_size = 3, padding = 'same'))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(filters=256, kernel_size=3, padding='same'))
+    #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 8, 8, 256)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 128, kernel_size = 3, padding = 'same'))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(filters=128, kernel_size=3, padding='same'))
+    #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 16, 16, 128)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 64, kernel_size = 3, padding = 'same'))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'))
+    #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 32, 32, 64)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 32, kernel_size = 3, padding = 'same'))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=3, padding='same'))
+    #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 64, 64, 32)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 16, kernel_size = 3, padding = 'same'))
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+
+    model.add(tf.keras.layers.Conv2D(filters=16, kernel_size=3, padding='same'))
+    #model.add(tf.keras.layers.BatchNormalization(momentum=0.7))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 128, 128, 16)
-    
-    model.add(tf.keras.layers.UpSampling2D())
-    model.add(tf.keras.layers.Conv2D(filters = 8, kernel_size = 3, padding = 'same'))
+
+    model.add(tf.keras.layers.Conv2D(filters=8, kernel_size=3, padding='same'))
     model.add(tf.keras.layers.Activation('relu'))
+    model.add(tf.keras.layers.UpSampling2D())
     assert model.output_shape == (None, 256, 256, 8)
-    
-    model.add(tf.keras.layers.Conv2D(filters = 3, kernel_size = 3, padding = 'same'))
+
+    model.add(tf.keras.layers.Conv2D(filters=3, kernel_size=3, padding='same'))
     model.add(tf.keras.layers.Activation('tanh'))
     assert model.output_shape == (None, 256, 256, 3)
-    
+
     return model
 
 
-def build_discriminator(img_width=256, img_height=256, p=0.25):
+def build_discriminator(img_width=256, img_height=256, p=0.45):
     model = tf.keras.Sequential()
 
     #add Gaussian noise to prevent Discriminator overfitting
-    # model.add(tf.keras.layers.GaussianNoise(0.2, input_shape = [img_width, img_height, 3]))
-    
+    model.add(tf.keras.layers.GaussianNoise(0.2, input_shape = [img_width, img_height, 3]))
 
-    model.add(tf.keras.layers.Conv2D(32, kernel_size=3, strides=2, padding='same', input_shape=(img_width, img_height, 3)))  # RGB input
+
+    # model.add(tf.keras.layers.Conv2D(8, kernel_size=3, strides=2, padding='same'))
+    # #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    # model.add(tf.keras.layers.LeakyReLU(0.2))
+    # model.add(tf.keras.layers.Dropout(p))
+
+    # model.add(tf.keras.layers.Conv2D(16, kernel_size=3, strides=2, padding='same'))
+    # #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    # model.add(tf.keras.layers.LeakyReLU(0.2))
+    # model.add(tf.keras.layers.Dropout(p))
+
+
+    model.add(tf.keras.layers.Conv2D(32, kernel_size=3, strides=2, padding='same'))
+    model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
 
    
     model.add(tf.keras.layers.Conv2D(64, kernel_size=3, strides=2, padding='same'))
-    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
 
     model.add(tf.keras.layers.Conv2D(128, kernel_size=3, strides=2, padding='same'))
-    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
 
-    model.add(tf.keras.layers.Conv2D(256, kernel_size=3, strides=1, padding='same'))
-    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.Conv2D(256, kernel_size=3, strides=2, padding='same'))
+    model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
 
-    model.add(tf.keras.layers.Conv2D(512, kernel_size=3, strides=1, padding='same'))
-    #model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.Conv2D(512, kernel_size=3, strides=2, padding='same'))
+    model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    #model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
 
-    # # Fifth convolutional layer (to further downscale)
-    model.add(tf.keras.layers.Conv2D(1024, kernel_size=3, strides=1, padding='same'))
-    model.add(tf.keras.layers.LeakyReLU(0.2))
-    model.add(tf.keras.layers.Dropout(p))
+    # # # Fifth convolutional layer (to further downscale)
+    # model.add(tf.keras.layers.Conv2D(1024, kernel_size=3, strides=2, padding='same'))
+    # model.add(tf.keras.layers.LeakyReLU(0.2))
+    # model.add(tf.keras.layers.Dropout(p))
 
     # Flatten layer to feed into a dense output layer
     model.add(tf.keras.layers.Flatten())
@@ -160,7 +291,7 @@ def train_gan(strategy, sketch_type, generator, discriminator, gan, images, imag
 
         # Train the discriminator on real images (with smoothed labels) and fake images (with smoothed labels)
         d_loss_real, d_acc_real = discriminator.train_on_batch(real_images, real_labels_smooth)
-        d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_images, fake_labels_smooth)
+        d_loss_fake, d_acc_fake = discriminator.train_on_batch(fake_images, fake_labels)
 
         # Average the losses and accuracies
         d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)  # Average of both losses

@@ -53,7 +53,7 @@ def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_pl
 
         # Display the fake image in the second column
         axes[i, 1].imshow(random_fake_images[i])  
-        axes[i, 1].set_title(f"Brave new {strategy} Dolomiti {i+1}")
+        axes[i, 1].set_title(f"Brave new Dolomiti {i+1}")
         axes[i, 1].axis('off')
 
     # Adjust layout for better spacing between images
