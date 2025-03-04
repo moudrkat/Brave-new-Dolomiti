@@ -2,7 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 from src.data_preprocessing import load_data, normalize_images
-from src.gan_model_wasserstein import build_generator_WGAN, build_critic, compile_gan_WGAN, train_gan_WGAN
+from src.gan_model_wasserstein import build_generator_WGAN, build_critic, compile_gan_WGAN, train_gan_WGAN, wasserstein_loss
 from src.gan_model import build_generator, build_discriminator, compile_gan, train_gan
 import matplotlib.pyplot as plt
 from src.utils import extract_last_word_from_filename
@@ -70,7 +70,7 @@ try:
             gan = compile_gan(generator, discriminator,optimizer_gan)
 
             # GAN Training
-            n_epochs = 50000
+            n_epochs = 30000
             batch_size = 64  
 
             # how often are results saved and displayed
@@ -105,13 +105,13 @@ try:
 
             print('bulding critic')
             critic = build_critic()
-            critic.compile(loss='binary_crossentropy', optimizer=optimizer_crit, metrics=['accuracy'])
+            critic.compile(loss=wasserstein_loss, optimizer=optimizer_crit, metrics=['accuracy'])
 
             print('bulding GAN')
             gan = compile_gan_WGAN(generator, critic,optimizer_gan)
 
             # GAN Training
-            n_epochs = 50000
+            n_epochs = 30000
             batch_size = 64  
 
             # how often are results saved and displayed
