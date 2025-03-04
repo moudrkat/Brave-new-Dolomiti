@@ -3,8 +3,9 @@ I am currently working on implementing DCGAN and WGAN, and later, I plan to expl
 Hopefully, one of these methods will converge successfully.
 
 Run with argument: streamlit run app_train_model.py -- --model DCGAN
+                   streamlit run app_train_model.py -- --model WGAN
 
-Currently only DCGAN model works (but suffers from mode collapse) ... soon WGAN will be implemented
+Currently only DCGAN model works (but suffers from mode collapse) ... WGAN is implemented but not properly
 
 
 Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
