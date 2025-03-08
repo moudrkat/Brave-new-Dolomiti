@@ -18,4 +18,6 @@ Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial
 
         https://machinelearningmastery.com/how-to-code-a-wasserstein-generative-adversarial-network-wgan-from-scratch/
 
+        https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
+
 

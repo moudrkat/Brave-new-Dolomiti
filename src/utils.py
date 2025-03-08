@@ -3,18 +3,13 @@ import numpy as np
 import streamlit as st
 import matplotlib.cm as cm
 import os
+import tensorflow as tf
 
-def extract_last_word_from_filename(file_path):
-    # Get the filename from the path
-    filename = os.path.basename(file_path)
-    # Extract the last word based on your logic (for example, splitting by underscore)
-    last_word = filename.split('_')[-1].replace('.npz', '')
-    return last_word
 
 def save_generated_images(strategy, sketch_type, images, epoch,  path=f"./generated_images"):
 
-    images = (images + 1) * 127.5  # Rescale to [0, 255]
-    images = np.clip(images, 0, 255)  # Ensure values are in the valid range [0, 255]
+    # images = (images + 1) * 127.5  # Rescale to [0, 255]
+    # images = np.clip(images, 0, 255)  # Ensure values are in the valid range [0, 255]
 
     plt.figure(figsize=(10.8, 13.5))
     
@@ -33,12 +28,13 @@ def save_generated_images(strategy, sketch_type, images, epoch,  path=f"./genera
 def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_placeholder):
     # Ensure the images are 4D arrays 
     batch_size = real_images.shape[0]
+    # batch_size = 64
 
     # Randomly select 10 unique indices from the batch
     random_indices = np.random.choice(batch_size, 5, replace=False)
 
     # Select 5 random real and fake images using the selected indices
-    random_real_images = real_images[random_indices]
+    # random_real_images = real_images[random_indices]
     random_fake_images = fake_images[random_indices]
     
     # Create a figure with 2 columns and 10 rows
@@ -47,7 +43,7 @@ def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_pl
     # Loop through the 10 rows and display real and fake images in the respective columns
     for i in range(5):
         # Display the real image in the first column
-        axes[i, 0].imshow(random_real_images[i])  
+        # axes[i, 0].imshow(random_real_images[i])  
         axes[i, 0].set_title(f"Real Dolomiti {i+1}")
         axes[i, 0].axis('off')
 
@@ -62,7 +58,7 @@ def show_images_in_streamlit(strategy, real_images, fake_images, epoch, image_pl
     # Show the images in the Streamlit placeholder
     image_placeholder.pyplot(fig)
 
-def show_loss_acc_in_streamlit(strategy, g_losses, d_losses, d_accuracies, epoch,epochs,image_placeholder_loss,path="./generated_images"):
+def show_loss_acc_in_streamlit(strategy, g_losses, d_losses,d_accuracies, epoch,epochs,image_placeholder_loss,path="./generated_images"):
 
     fig, ax1 = plt.subplots()
 
@@ -73,10 +69,10 @@ def show_loss_acc_in_streamlit(strategy, g_losses, d_losses, d_accuracies, epoch
     ax1.legend(loc='upper left')
     ax1.set_ylim(0, 8)
 
-    # ax2 = ax1.twinx()  # Create a second y-axis for accuracy
-    # ax2.plot(d_accuracies, label='Discriminator Accuracy', color='green', linestyle='dashed')
-    # ax2.set_ylabel("Accuracy")
-    # ax2.legend(loc='upper right')
+    ax2 = ax1.twinx()  # Create a second y-axis for accuracy
+    ax2.plot(d_accuracies, label='Discriminator Accuracy', color='green', linestyle='dashed')
+    ax2.set_ylabel("Accuracy")
+    ax2.legend(loc='upper right')
 
     plt.title(f"Losses and Accuracy at Epoch {epoch}")
     image_placeholder_loss.pyplot(fig)  # Display plot in Streamlit

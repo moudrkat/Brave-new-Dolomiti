@@ -1,17 +1,18 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-from src.data_preprocessing import load_data, normalize_images
+from src.data_preprocessing import load_data, normalize_images,extract_last_word_from_filename, create_dataset
 from src.gan_model_wasserstein import build_generator_WGAN, build_critic, compile_gan_WGAN, train_gan_WGAN, wasserstein_loss
 from src.gan_model import build_generator, build_discriminator, compile_gan, train_gan
+from src.vae_model import vae_model, train_vae
 import matplotlib.pyplot as plt
-from src.utils import extract_last_word_from_filename
 import argparse
+
 
 # Function to parse arguments
 def parse_args():
-    parser = argparse.ArgumentParser(description="Choose the model type (DCGAN or WGAN)")
-    parser.add_argument('--model', type=str, choices=['DCGAN', 'WGAN'], required=True, help="Choose between 'DCGAN' or 'WGAN'")
+    parser = argparse.ArgumentParser(description="Choose the model type (DCGAN or WGAN or VAE)")
+    parser.add_argument('--model', type=str, choices=['DCGAN', 'WGAN','VAE'], required=True, help="Choose between 'DCGAN' or 'WGAN' or 'VAE'")
     args = parser.parse_args()
     return args
 
@@ -26,9 +27,8 @@ st.title("Brave new Dolomiti")
 st.write(f"Generate Dolomiti-like landscapes using a {strategy} model")
 
 # Set a local file path 
+# local_data_file = "./data/data_kaggle.npz"  # Change this to your local file path
 local_data_file = "./data/data_dolomiti.npz"  # Change this to your local file path
-
-#strategy = 'DCGAN'
 
 try:
     # Load data from the .npz file
@@ -53,11 +53,12 @@ try:
         if(strategy == "DCGAN"):
             # GAN setup
             latent_dim = 4096
-            learning_rate = 0.0008
+            learning_rate = 0.0004
+            # optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate, decay = 3e-8, clipvalue=1.0)
+            # optimizer_disc = tf.keras.optimizers.RMSprop(lr=0.00004,decay = 6e-8, clipvalue=1.0)
+
             optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate, weight_decay = 3e-8, clipvalue=1.0)
-            optimizer_disc = tf.keras.optimizers.RMSprop(lr=0.00004,weight_decay = 6e-8, clipvalue=1.0)
-            #optimizer_disc = tf.keras.optimizers.Adam(lr=2e-4, beta_1=0.5)  # Use Adam optimizer
-            #optimizer_gan = tf.keras.optimizers.Adam(lr=2e-4, beta_1=0.5)  # Use Adam optimizer
+            optimizer_disc = tf.keras.optimizers.RMSprop(lr=0.00008,weight_decay = 6e-8, clipvalue=1.0)
 
             print('bulding generator')
             generator = build_generator(latent_dim)
@@ -70,35 +71,42 @@ try:
             gan = compile_gan(generator, discriminator,optimizer_gan)
 
             # GAN Training
-            n_epochs = 30000
+            n_epochs = 3000
             batch_size = 64  
 
+            dataset = create_dataset(images, batch_size, 5000)
+
+            num_batches = sum(1 for _ in dataset)  # Count the number of batches
+            # print(f"Number of batches in dataset: {num_batches}")
+
             # how often are results saved and displayed
-            n_freq_show = 100
+            n_freq_show = 1
             n_freq_save = 1000
 
             # Start training process
             train_gan(strategy,
-                    sketch_type, 
+                    sketch_type,
+                    dataset, 
                     generator, 
                     discriminator, 
                     gan, 
-                    images, 
                     image_placeholder, 
                     image_placeholder_loss,
                     freq_show = n_freq_show, 
                     freq_save = n_freq_save,
                     epochs=n_epochs, 
-                    batch_size=batch_size, 
                     latent_dim=latent_dim)
             
         if(strategy == "WGAN"):
-                        # GAN setup
+            # GAN setup
             latent_dim = 4096
-            learning_rate_gan = 0.00008
+            learning_rate_gan = 0.00004
             learning_rate_disc = 0.00004
-            optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate_gan, weight_decay = 3e-8, clipvalue=1.0)
-            optimizer_crit = tf.keras.optimizers.RMSprop(lr=learning_rate_disc,weight_decay = 6e-8, clipvalue=1.0)
+            optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate_gan)
+            optimizer_crit = tf.keras.optimizers.RMSprop(lr=learning_rate_disc)
+
+            # optimizer_gan = tf.keras.optimizers.RMSprop(lr=learning_rate_gan, decay = 3e-8, clipvalue=1.0)
+            # optimizer_crit = tf.keras.optimizers.RMSprop(lr=learning_rate_disc,decay = 6e-8, clipvalue=1.0)
 
             print('bulding generator')
             generator = build_generator_WGAN(latent_dim)
@@ -114,24 +122,60 @@ try:
             n_epochs = 30000
             batch_size = 64  
 
+            dataset = create_dataset(images, batch_size, 5000)
+            # dataset = dataset.skip(len(dataset) - 1)  # Skip the last batch
+
             # how often are results saved and displayed
-            n_freq_show = 100
+            n_freq_show = 1
             n_freq_save = 1000
 
             # Start training process
             train_gan_WGAN(strategy,
-                    sketch_type, 
+                    sketch_type,
+                    dataset, 
                     generator, 
                     critic, 
-                    gan, 
-                    images, 
+                    gan,  
                     image_placeholder, 
                     image_placeholder_loss,
                     freq_show = n_freq_show, 
                     freq_save = n_freq_save,
-                    epochs=n_epochs, 
-                    batch_size=batch_size, 
+                    epochs=n_epochs,  
                     latent_dim=latent_dim)
+            
+
+        if(strategy == "VAE"):
+
+            latent_dim = 100
+
+            vae, encoder_model, decoder_model = vae_model(latent_dim)
+                        # Define optimizer
+            optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
+
+            # GAN Training
+            n_epochs = 1000
+            batch_size = 64  
+
+            dataset = create_dataset(images, batch_size, 5000)
+            # dataset = dataset.skip(len(dataset) - 1)  # Skip the last batch
+
+            # how often are results saved and displayed
+            n_freq_show = 1
+            n_freq_save = 1000
+
+            # Start training
+            train_vae( strategy,
+                    sketch_type,
+                    optimizer,
+                    dataset,
+                    encoder_model,
+                    decoder_model,
+                    image_placeholder,
+                    n_freq_show,
+                    n_freq_save,
+                    n_epochs,
+                    latent_dim)
+
 
     st.write("Training complete!")
 
