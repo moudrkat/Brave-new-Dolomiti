@@ -21,8 +21,9 @@ def encoder(latent_dim):
     x = layers.Conv2D(32, 3, activation='relu', strides=2, padding='same')(inputs)
     x = layers.Conv2D(64, 3, activation='relu', strides=2, padding='same')(x)
     x = layers.Conv2D(128, 3, activation='relu', strides=2, padding='same')(x)
+    x = layers.Conv2D(256, 3, activation='relu', strides=2, padding='same')(x)
     x = layers.Flatten()(x)
-    x = layers.Dense(128, activation='relu')(x)
+    x = layers.Dense(256, activation='relu')(x)
     z_mean = layers.Dense(latent_dim)(x)
     z_log_var = layers.Dense(latent_dim)(x)
     return models.Model(inputs, [z_mean, z_log_var])
@@ -38,42 +39,6 @@ def decoder(latent_dim):
     x = layers.Conv2DTranspose(32, 3, activation='relu', strides=2, padding='same')(x)
     decoded = layers.Conv2D(3, 3, activation='tanh', padding='same')(x)
     return models.Model(latent_inputs, decoded)
-
-# VAE model function (corrected for MSE)
-def vae_model(latent_dim):
-    encoder_model = encoder(latent_dim)
-    decoder_model = decoder(latent_dim)
-
-    inputs = layers.Input(shape=(256, 256, 3))
-
-    # Encoder
-    z_mean, z_log_var = encoder_model(inputs)
-
-    # Sampling
-    z = layers.Lambda(sampling)([z_mean, z_log_var])
-
-    # Decoder
-    decoded = decoder_model(z)
-
-    vae = models.Model(inputs, decoded, name="vae")
-
-    # Add VAE loss
-    # Use Mean Squared Error (MSE) for reconstruction loss
-    reconstruction_loss = tf.reduce_mean(
-        tf.reduce_sum(tf.square(inputs - decoded), axis=(1, 2, 3))  # MSE per pixel
-    )  # Mean squared error loss
-
-    # KL divergence loss (same as before)
-    kl_loss = -0.5 * tf.reduce_mean(
-        z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1
-    )
-
-    vae_loss = reconstruction_loss + kl_loss
-
-    vae.add_loss(vae_loss)
-    vae.compile(optimizer=Adam())
-
-    return vae, encoder_model, decoder_model
 
 # Load and preprocess image function
 def load_and_preprocess_image(image_path, target_size=(256, 256)):
@@ -101,12 +66,7 @@ def train_step(encoder, decoder, images, optimizer):
         reconstructed = decoder(z)
         
         # Calculate VAE loss (reconstruction + KL divergence)
-        reconstruction_loss = tf.reduce_mean(
-            tf.reduce_sum(
-                tf.reduce_sum(tf.square(images - reconstructed), axis=(1, 2, 3))  # MSE per pixel
-            )
-        )
-        reconstruction_loss *= 256 * 256  # Pixel-wise loss scaling
+        reconstruction_loss = tf.reduce_mean(tf.square(images - reconstructed))
 
         kl_loss = -0.5 * tf.reduce_mean(
             z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1

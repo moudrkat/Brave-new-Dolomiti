@@ -6,6 +6,10 @@ Hopefully, one of these methods will converge successfully.
 
 Sadly, nothing gives sufficient results yet. As I said, it is work in progress.
 
+DCGAN and WGAN are weirdly tuned so they fall to mode collapse and currently produce weird images.
+
+VAE gives blurry results because its VAE ... but I am trying to improve it.
+
 Run with argument: streamlit run app_train_model.py -- --model DCGAN
                    streamlit run app_train_model.py -- --model WGAN
                    streamlit run app_train_model.py -- --model VAE

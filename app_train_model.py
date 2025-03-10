@@ -4,7 +4,7 @@ import numpy as np
 from src.data_preprocessing import load_data, normalize_images,extract_last_word_from_filename, create_dataset
 from src.gan_model_wasserstein import build_generator_WGAN, build_critic, compile_gan_WGAN, train_gan_WGAN, wasserstein_loss
 from src.gan_model import build_generator, build_discriminator, compile_gan, train_gan
-from src.vae_model import vae_model, train_vae
+from src.vae_model import train_vae, encoder, decoder
 import matplotlib.pyplot as plt
 import argparse
 
@@ -21,6 +21,9 @@ args = parse_args()
 
 # Use the argument
 strategy = args.model
+
+# rndn seed for TensorFlow:
+tf.random.set_seed(42)
 
 # Streamlit UI setup
 st.title("Brave new Dolomiti")
@@ -146,11 +149,14 @@ try:
 
         if(strategy == "VAE"):
 
-            latent_dim = 100
+            latent_dim = 256
 
-            vae, encoder_model, decoder_model = vae_model(latent_dim)
-                        # Define optimizer
-            optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
+          
+            encoder_model = encoder(latent_dim)
+            decoder_model = decoder(latent_dim)
+
+            lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=0.001, decay_steps=10000, decay_rate=0.96, staircase=True)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
             # GAN Training
             n_epochs = 1000

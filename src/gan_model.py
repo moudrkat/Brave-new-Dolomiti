@@ -119,11 +119,11 @@ def build_discriminator(img_width=256, img_height=256, p=0.45):
     #add Gaussian noise to prevent Discriminator overfitting
     # model.add(tf.keras.layers.GaussianNoise(0.2, input_shape = [img_width, img_height, 3]))
 
-    # model.add(tf.keras.layers.Conv2D(32, kernel_size=4, strides=2, padding='same',kernel_initializer=init))
-    # # model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    # # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
-    # model.add(tf.keras.layers.LeakyReLU(0.2))
-    # model.add(tf.keras.layers.Dropout(p))
+    model.add(tf.keras.layers.Conv2D(32, kernel_size=4, strides=2, padding='same',kernel_initializer=init))
+    # model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.LeakyReLU(0.2))
+    model.add(tf.keras.layers.Dropout(p))
 
     model.add(tf.keras.layers.Conv2D(64, kernel_size=4, strides=2, padding='same',kernel_initializer=init))
     # model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
@@ -143,11 +143,11 @@ def build_discriminator(img_width=256, img_height=256, p=0.45):
     model.add(tf.keras.layers.LeakyReLU(0.2))
     model.add(tf.keras.layers.Dropout(p))
     
-    # model.add(tf.keras.layers.Conv2D(512, kernel_size=4, strides=2, padding='same'))
-    # # model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
-    # # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
-    # model.add(tf.keras.layers.LeakyReLU(0.2))
-    # model.add(tf.keras.layers.Dropout(p))
+    model.add(tf.keras.layers.Conv2D(512, kernel_size=4, strides=2, padding='same'))
+    # model.add(tf.keras.layers.GaussianNoise(0.1))  # Add noise after Conv2D layer
+    # model.add(tf.keras.layers.BatchNormalization(momentum = 0.7))
+    model.add(tf.keras.layers.LeakyReLU(0.2))
+    model.add(tf.keras.layers.Dropout(p))
 
     # Flatten layer to feed into a dense output layer
     model.add(tf.keras.layers.Flatten())
@@ -195,7 +195,8 @@ def train_gan(strategy, sketch_type, dataset, generator, discriminator, gan, ima
             half_batch = batch_size//2
 
             # Latent noise for generator
-            noise = np.random.normal(0, 1, (batch_size, latent_dim))
+            # noise = np.random.normal(0, 1, (batch_size, latent_dim))
+            noise = tf.random.normal([batch_size, latent_dim], mean=0.0, stddev=1.0, dtype=tf.float32)
 
             # Generate fake images using the generator
             generated_images = generator.predict(noise)
