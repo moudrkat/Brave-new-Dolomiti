@@ -81,3 +81,27 @@ def show_loss_acc_in_streamlit(strategy, g_losses, d_losses,d_accuracies, epoch,
         plt.savefig(f"{path}/model_metrics.png")
 
 
+# Function to plot the losses
+def plot_vae_losses(avg_reconstruction_losses, avg_kl_losses):
+    plt.figure(figsize=(12, 6))
+
+    # Plot Reconstruction Loss
+    plt.subplot(1, 2, 1)
+    plt.plot(avg_reconstruction_losses, label='Reconstruction Loss', color='b')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Reconstruction Loss')
+    plt.legend()
+
+    # Plot KL Divergence Loss
+    plt.subplot(1, 2, 2)
+    plt.plot(avg_kl_losses, label='KL Divergence', color='r')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('KL Divergence Loss')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+

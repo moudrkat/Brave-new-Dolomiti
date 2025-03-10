@@ -15,29 +15,52 @@ def sampling(args):
     epsilon = tf.keras.backend.random_normal(shape=(batch, dim))
     return z_mean + tf.exp(0.5 * z_log_var) * epsilon
 
-# Encoder model
-def encoder(latent_dim):
+def encoder(latent_dim=64):
     inputs = layers.Input(shape=(256, 256, 3))
-    x = layers.Conv2D(32, 3, activation='relu', strides=2, padding='same')(inputs)
-    x = layers.Conv2D(64, 3, activation='relu', strides=2, padding='same')(x)
-    x = layers.Conv2D(128, 3, activation='relu', strides=2, padding='same')(x)
-    x = layers.Conv2D(256, 3, activation='relu', strides=2, padding='same')(x)
+    
+    # Add more Conv2D layers to make the model deeper, with Batch Normalization
+    x = layers.Conv2D(32, 3, activation=None, strides=2, padding='same')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)  # Apply ReLU after BatchNormalization
+    
+    x = layers.Conv2D(64, 3, activation=None, strides=2, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    
+    x = layers.Conv2D(128, 3, activation=None, strides=2, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    
+    x = layers.Conv2D(256, 3, activation=None, strides=2, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+    
+    x = layers.Conv2D(512, 3, activation=None, strides=2, padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.ReLU()(x)
+
     x = layers.Flatten()(x)
-    x = layers.Dense(256, activation='relu')(x)
+    x = layers.Dense(256, activation='relu')(x)  # Reduced dense layer size
     z_mean = layers.Dense(latent_dim)(x)
     z_log_var = layers.Dense(latent_dim)(x)
+    
     return models.Model(inputs, [z_mean, z_log_var])
 
-# Decoder model
-def decoder(latent_dim):
+def decoder(latent_dim=64):
     latent_inputs = layers.Input(shape=(latent_dim,))
-    x = layers.Dense(16 * 16 * 256, activation='relu')(latent_inputs)
-    x = layers.Reshape((16, 16, 256))(x)
-    x = layers.Conv2DTranspose(256, 3, activation='relu', strides=2, padding='same')(x)
-    x = layers.Conv2DTranspose(128, 3, activation='relu', strides=2, padding='same')(x)
-    x = layers.Conv2DTranspose(64, 3, activation='relu', strides=2, padding='same')(x)
-    x = layers.Conv2DTranspose(32, 3, activation='relu', strides=2, padding='same')(x)
-    decoded = layers.Conv2D(3, 3, activation='tanh', padding='same')(x)
+    
+    # Initial dense layer to reshape the latent vector
+    x = layers.Dense(16 * 16 * 512, activation='relu')(latent_inputs)  # Increased size
+    x = layers.Reshape((16, 16, 512))(x)  # Reshape to 16x16x512
+    
+    # Add more Conv2DTranspose layers to make the decoder deeper
+    x = layers.Conv2DTranspose(512, 3, activation='relu', strides=2, padding='same')(x)  # 32x32
+    x = layers.Conv2DTranspose(256, 3, activation='relu', strides=2, padding='same')(x)  # 64x64
+    x = layers.Conv2DTranspose(128, 3, activation='relu', strides=2, padding='same')(x)  # 128x128
+    x = layers.Conv2DTranspose(64, 3, activation='relu', strides=2, padding='same')(x)   # 256x256
+
+    decoded = layers.Conv2D(3, 3, activation='tanh', padding='same')(x)  # Output shape (256, 256, 3)
+    
     return models.Model(latent_inputs, decoded)
 
 # Load and preprocess image function
@@ -78,7 +101,7 @@ def train_step(encoder, decoder, images, optimizer):
     grads = tape.gradient(vae_loss, encoder.trainable_variables + decoder.trainable_variables)
     optimizer.apply_gradients(zip(grads, encoder.trainable_variables + decoder.trainable_variables))
 
-    return vae_loss
+    return vae_loss, reconstruction_loss, kl_loss
 
 # Training loop
 def train_vae( strategy, sketch_type,optimizer, dataset, encoder,decoder, image_placeholder, freq_show=10, freq_save=100, epochs=100,latent_dim=100):
@@ -86,7 +109,7 @@ def train_vae( strategy, sketch_type,optimizer, dataset, encoder,decoder, image_
         epoch_loss = 0
         num_batches = 0
         for batch_images in dataset:
-            batch_loss = train_step(encoder,decoder, batch_images, optimizer)
+            batch_loss, reconstruction_loss, kl_loss = train_step(encoder,decoder, batch_images, optimizer)
             epoch_loss += batch_loss
             num_batches += 1
 
