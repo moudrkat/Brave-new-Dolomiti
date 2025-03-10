@@ -3,8 +3,7 @@ import tensorflow as tf
 import numpy as np
 from src.data_preprocessing import normalize_images,extract_last_word_from_filename
 import argparse
-
-from model_setup import dcgan_setup,wgan_setup,vae_setup
+from model_setup import dcgan_setup,wgan_setup,vae_setup,vqvae_setup
 
 # Function to parse arguments
 def parse_args():
