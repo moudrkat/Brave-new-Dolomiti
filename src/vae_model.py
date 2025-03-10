@@ -101,7 +101,8 @@ def train_step(encoder, decoder, images, optimizer):
     grads = tape.gradient(vae_loss, encoder.trainable_variables + decoder.trainable_variables)
     optimizer.apply_gradients(zip(grads, encoder.trainable_variables + decoder.trainable_variables))
 
-    return vae_loss, reconstruction_loss, kl_loss
+    return vae_loss
+# , reconstruction_loss, kl_loss
 
 # Training loop
 def train_vae( strategy, sketch_type,optimizer, dataset, encoder,decoder, image_placeholder, freq_show=10, freq_save=100, epochs=100,latent_dim=100):
@@ -109,7 +110,7 @@ def train_vae( strategy, sketch_type,optimizer, dataset, encoder,decoder, image_
         epoch_loss = 0
         num_batches = 0
         for batch_images in dataset:
-            batch_loss, reconstruction_loss, kl_loss = train_step(encoder,decoder, batch_images, optimizer)
+            batch_loss = train_step(encoder,decoder, batch_images, optimizer)
             epoch_loss += batch_loss
             num_batches += 1
 
