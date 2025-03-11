@@ -15,16 +15,26 @@ Run with argument: streamlit run app_train_model.py -- --model DCGAN
                    streamlit run app_train_model.py -- --model VAE
 
 
-Resources: https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
+Resources: 
+
+        GAN:
+        https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
+
+        DCGAN:
 
         https://arxiv.org/abs/1511.06434
 
         https://distill.pub/2016/deconv-checkerboard/
 
+        WGAN:
+
         https://medium.com/@m.naufalrizqullah17/exploring-conditional-gans-with-wgan-4f13e91d30eb
 
         https://machinelearningmastery.com/how-to-code-a-wasserstein-generative-adversarial-network-wgan-from-scratch/
 
-        https://machinelearningmastery.com/how-to-code-generative-adversarial-network-hacks/
+
+        VQVAE:
+
+        https://keras.io/examples/generative/vq_vae/
 
 

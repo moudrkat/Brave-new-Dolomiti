@@ -9,7 +9,7 @@ def vae_setup(strategy,sketch_type,images,image_placeholder,image_placeholder_lo
             decoder_model = decoder(latent_dim)
 
             lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate=0.001, decay_steps=10000, decay_rate=0.96, staircase=True)
-            optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+            optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002)
 
             # GAN Training
             n_epochs = 1000
